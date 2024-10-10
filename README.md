@@ -1,6 +1,6 @@
-# Hacktoberfest Full Stack Projects Repository
+# Hacktoberfest Projects Repository
 
-Welcome to the **Hacktoberfest Full Stack Projects** repository! This is a place where developers can upload and showcase their full stack projects. Whether you're an experienced developer or just starting, feel free to contribute your projects and help others learn.
+Welcome to the **Hacktoberfest Projects** repository! This is a place where developers can upload and showcase their full stack projects. Whether you're an experienced developer or just starting, feel free to contribute your projects and help others learn.
 
 ## Table of Contents
 
