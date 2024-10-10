@@ -1,0 +1,3 @@
+vanna
+streamlit
+python-dotenv
