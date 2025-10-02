@@ -1,6 +1,6 @@
-#include <bits/stdc++.h>
+#include <bits/stdc++.h> 
 using namespace std;
-
+//git tutorial
 // Function to find the number of ways to assign caps to
 // people such tcap each person gets a unique cap
 int solve(int capId, int mask, int n, int mod,
