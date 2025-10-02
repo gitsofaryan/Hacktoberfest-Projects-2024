@@ -14,7 +14,8 @@ struct Node {
 */
 Node* newNode(string payload) {
     Node* node = new Node();
-    node->payload = payload;
+    node->payload = payload
+    node->next = nullptr;
     return node;
 }
 
@@ -23,6 +24,14 @@ Node* newNode(string payload) {
 * linked list (of n size), with the names from the vector
 */
 Node* loadGame(int n, vector<string> names) {
+    if(n == 0) {
+        return nullptr;
+    }
+
+    if(n != names.size()) {
+        throw runtime_error("Mismatch: n does not match number of names provided");
+    }
+    
     Node* head = nullptr;
     Node* prev = nullptr;
     string name;
@@ -63,6 +72,14 @@ void print(Node* start) { // prints list
 * which is how many nodes to iterate past
 */
 Node* runGame(Node* start, int k) { // josephus w circular list, k = num skips
+    if(start == nullptr) {
+        return nullptr;
+    }
+
+    if(k < 0) {
+        throw runtime_error("k must be non-negative");
+    }
+    
     Node* curr = start;
     Node* prev = curr;
     while (curr->next != curr) { // exit condition, last person standing
@@ -87,6 +104,7 @@ int main() {
     // get inputs and check if cin is in a valid state
     cin >> n >> k;
     if(!cin) { throw runtime_error("Faulty input"); }
+    if(n <= 0 || k < 0) { throw runtime_error("n must be positive, k must be non-negative"); }
 
     while (cin >> name && name != ".") { names.push_back(name); } // EOF or . ends input
 
