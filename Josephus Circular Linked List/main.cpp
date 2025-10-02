@@ -14,7 +14,7 @@ struct Node {
 */
 Node* newNode(string payload) {
     Node* node = new Node();
-    node->payload = payload
+    node->payload = payload;
     node->next = nullptr;
     return node;
 }
@@ -76,8 +76,8 @@ Node* runGame(Node* start, int k) { // josephus w circular list, k = num skips
         return nullptr;
     }
 
-    if(k < 0) {
-        throw runtime_error("k must be non-negative");
+    if(k <= 0) {
+        throw runtime_error("k must be positive");
     }
     
     Node* curr = start;
