@@ -1,0 +1,172 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Student {
+    int id;
+    string name;
+    string dob;           // dd-mm-yyyy
+    string email;
+    string phone;
+    double gpa;           // 0.0 - 10.0 (or 4.0 scale - config)
+    vector<string> courses;
+
+    // CSV representation (escaping basic commas by quoting)
+    string to_csv() const {
+        auto quote = [](const string &s)->string {
+            string out = s;
+            // escape " by doubling it (CSV rules)
+            size_t pos = 0;
+            while ((pos = out.find('"', pos)) != string::npos) {
+                out.insert(pos, "\"");
+                pos += 2;
+            }
+            return "\"" + out + "\"";
+        };
+
+        stringstream ss;
+        ss << id << ",";
+        ss << quote(name) << ",";
+        ss << quote(dob) << ",";
+        ss << quote(email) << ",";
+        ss << quote(phone) << ",";
+        ss << fixed << setprecision(2) << gpa << ",";
+        // combine courses into semicolon-separated list
+        string combined;
+        for (size_t i = 0; i < courses.size(); ++i) {
+            combined += courses[i];
+            if (i + 1 < courses.size()) combined += ";";
+        }
+        ss << quote(combined);
+        return ss.str();
+    }
+
+    static Student from_csv(const string &line) {
+        // A simple CSV parser that expects our quoting rules.
+        Student s;
+        vector<string> cols;
+        string cur;
+        bool in_quote = false;
+        for (size_t i = 0; i < line.size(); ++i) {
+            char c = line[i];
+            if (c == '"' && (i == 0 || line[i-1] != '\\')) {
+                // toggle quote status, but also handle doubled quotes
+                if (in_quote && i+1 < line.size() && line[i+1] == '"') {
+                    // doubled quote -> produce one quote and skip next
+                    cur.push_back('"');
+                    ++i;
+                } else {
+                    in_quote = !in_quote;
+                }
+            } else if (c == ',' && !in_quote) {
+                cols.push_back(cur);
+                cur.clear();
+            } else {
+                cur.push_back(c);
+            }
+        }
+        cols.push_back(cur);
+
+        // Trim optional surrounding quotes
+        auto unquote = [](string s)->string {
+            if (!s.empty() && s.front() == '"' && s.back() == '"') {
+                s = s.substr(1, s.size()-2);
+            }
+            // replace double quotes with single
+            string out;
+            for (size_t i = 0; i < s.size(); ++i) {
+                if (s[i] == '"' && i+1 < s.size() && s[i+1] == '"') {
+                    out.push_back('"');
+                    ++i;
+                } else out.push_back(s[i]);
+            }
+            return out;
+        };
+
+        try {
+            if (cols.size() >= 7) {
+                s.id = stoi(cols[0]);
+                s.name = unquote(cols[1]);
+                s.dob = unquote(cols[2]);
+                s.email = unquote(cols[3]);
+                s.phone = unquote(cols[4]);
+                s.gpa = stod(cols[5]);
+                string combined = unquote(cols[6]);
+                s.courses.clear();
+                string tmp;
+                stringstream ss(combined);
+                while (getline(ss, tmp, ';')) {
+                    if (!tmp.empty()) s.courses.push_back(tmp);
+                }
+            } else {
+                throw runtime_error("CSV columns mismatch");
+            }
+        } catch (...) {
+            // fallback to defaults if parsing fails
+            s = Student();
+            s.id = -1;
+        }
+        return s;
+    }
+};
+
+class StudentDB {
+private:
+    vector<Student> students;
+    int next_id = 1;
+    string filename;
+
+    int index_by_id(int id) const {
+        for (size_t i = 0; i < students.size(); ++i) {
+            if (students[i].id == id) return (int)i;
+        }
+        return -1;
+    }
+
+public:
+    StudentDB(string fname = "students.csv") : filename(fname) {
+        load_from_file();
+        // compute next_id
+        for (const auto &s : students) {
+            if (s.id >= next_id) next_id = s.id + 1;
+        }
+    }
+
+    ~StudentDB() {
+        // optional: save on exit
+    }
+
+    vector<Student> get_all() const { return students; }
+
+    Student* add_student(const string &name, const string &dob,
+                         const string &email, const string &phone,
+                         double gpa, const vector<string> &courses) {
+        Student s;
+        s.id = next_id++;
+        s.name = name;
+        s.dob = dob;
+        s.email = email;
+        s.phone = phone;
+        s.gpa = gpa;
+        s.courses = courses;
+        students.push_back(s);
+        return &students.back();
+    }
+
+    bool remove_student(int id) {
+        int idx = index_by_id(id);
+        if (idx < 0) return false;
+        students.erase(students.begin() + idx);
+        return true;
+    }
+
+    Student* find_student_by_id(int id) {
+        int idx = index_by_id(id);
+        if (idx < 0) return nullptr;
+        return &students[idx];
+    }
+
+    vector<Student> search_by_name(const string &q) const {
+        vector<Student> res;
+        string lowerq = q; transform(lowerq.begin(), lowerq.end(), lowerq.begin(), ::tolower);
+        for (auto &s : students) {
+            string nm = s.name; transform(n
